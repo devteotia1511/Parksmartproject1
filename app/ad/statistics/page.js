@@ -7,13 +7,15 @@ import React from 'react'
 import {ChartLineDots} from '@/components/chart-line-dots'
 import {ChartPieInteractive} from '@/components/chart-pie-interactive'
 import { SectionCards } from '@/components/section-cards';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
 
 const page = () => {
   return (
-    <SidebarProvider
+    <ProtectedRoute>
+      <SidebarProvider
       style={
         {
-          "--sidebar-width": "calc(var(--spacing) * 65)",
+          "--sidebar-width": "calc(var(--spacing) * 60)",
           "--header-height": "calc(var(--spacing) * 10)"
         }
       }
@@ -27,7 +29,8 @@ const page = () => {
             avatar: "/avatars/profile.jpg"
           }}
           breadcrumbs={[
-            { label: "AD - Statistics", href: "/ad/statistics" }
+            {label: "Ad"},
+            { label: "Statistics", href: "/ad/statistics" }
           ]}
         />
         <div className="flex flex-1 flex-col">
@@ -134,6 +137,7 @@ const page = () => {
         </div>
       </SidebarInset>
     </SidebarProvider>
+    </ProtectedRoute>
   );
 }
 

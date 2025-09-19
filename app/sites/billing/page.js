@@ -1,14 +1,34 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { ChevronDown } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { ChevronDown, Search, Filter } from "lucide-react"
 import { AppSidebar } from '@/components/app-sidebar'
 import { MainHeader } from '@/components/main-header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Slider } from "@/components/ui/slider"
+import { Badge } from "@/components/ui/badge"
+import { DateTimeFilter } from "@/components/ui/date-picker"
 
 export default function BillingPage() {
   const [openMonth, setOpenMonth] = useState(null)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [statusFilter, setStatusFilter] = useState(null)
+  const [amountFilter, setAmountFilter] = useState(15000) // Max amount filter
+  const [dateTimeFilter, setDateTimeFilter] = useState(null) // Date time filter
+  
+  // Filter UI state
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [selectedPanel, setSelectedPanel] = useState('status')
+  const [tempStatusFilter, setTempStatusFilter] = useState(statusFilter)
+  const [tempAmountFilter, setTempAmountFilter] = useState(amountFilter)
 
   const toggleMonth = (month) => {
     setOpenMonth(openMonth === month ? null : month)
@@ -178,11 +198,64 @@ export default function BillingPage() {
     },
   ]
 
+  // Calculate max amount for slider
+  const maxAmount = Math.max(...invoices.map(inv => inv.total), 15000)
+  
+  // Filter state management
+  const hasActiveFilters = statusFilter || (amountFilter && amountFilter < maxAmount)
+  
+  // Reset temp filters when opening
+  useEffect(() => {
+    if (isFilterOpen) {
+      setTempStatusFilter(statusFilter)
+      setTempAmountFilter(amountFilter)
+    }
+  }, [isFilterOpen, statusFilter, amountFilter])
+  
+  const clearAllFilters = () => {
+    setTempStatusFilter(null)
+    setTempAmountFilter(maxAmount)
+  }
+  
+  const applyFilters = () => {
+    setStatusFilter(tempStatusFilter)
+    setAmountFilter(tempAmountFilter)
+    setIsFilterOpen(false)
+  }
+
+  // Filter functionality
+  const filteredInvoices = invoices.filter(invoice => {
+    // Search by month or customer names
+    const matchesSearch = searchTerm === "" || 
+      invoice.month.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      invoice.details.some(detail => 
+        detail.name.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    
+    // Filter by status
+    const matchesStatus = !statusFilter || invoice.status === statusFilter
+    
+    // Filter by amount
+    const matchesAmount = invoice.total <= amountFilter
+    
+    // Filter by date time
+    let matchesDateTime = true
+    if (dateTimeFilter) {
+      const filterDate = new Date(dateTimeFilter)
+      const invoiceDate = new Date(invoice.month + " 1, 2024")
+      const isSameMonth = filterDate.getMonth() === invoiceDate.getMonth() && 
+                          filterDate.getFullYear() === invoiceDate.getFullYear()
+      matchesDateTime = isSameMonth
+    }
+    
+    return matchesSearch && matchesStatus && matchesAmount && matchesDateTime
+  })
+
   return (
     <SidebarProvider
       style={
         {
-          "--sidebar-width": "calc(var(--spacing) * 65)",
+          "--sidebar-width": "calc(var(--spacing) * 60)",
           "--header-height": "calc(var(--spacing) * 10)"
         }
       }
@@ -196,15 +269,183 @@ export default function BillingPage() {
             avatar: "/avatars/profile.jpg"
           }}
           breadcrumbs={[
-            {label: "Sites", href: "/sites"},
+            {label: "Sites"},
             { label: "Billing", href: "/billing" }
           ]}
         />
-        <div className='flex mx-auto mt-1 font-inter font-bold text-2xl text-gray-600'>
-          <h1>- Monthy Invoices -</h1>
-        </div>
-          <div className="p-6 grid grid-cols-1 gap-6">
-          {invoices.map((invoice, index) => (
+        <div className="p-6">
+          <div className="flex items-center mb-6 gap-4">
+            {/* Title on the left */}
+            <div className='font-inter font-bold text-xl text-gray-600 flex-shrink-0'>
+              <h1>Monthly Invoices ({filteredInvoices.length})</h1>
+            </div>
+            
+            {/* Search bar and filters */}
+            <div className="flex-1 flex items-center justify-center gap-4">
+              <div className="relative w-full max-w-md">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="Search by Month or Customer Name..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 w-full"
+                />
+              </div>
+              
+              {/* Date Time Filter */}
+              <DateTimeFilter
+                onApply={setDateTimeFilter}
+                hasActiveFilter={!!dateTimeFilter}
+              />
+            </div>
+            
+            {/* Filter button on the right */}
+            <div className="flex-shrink-0">
+              <DropdownMenu open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="relative">
+                    <Filter className="h-4 w-4 mr-2" />
+                    Filter
+                    {hasActiveFilters && (
+                      <Badge className="ml-2 px-1 py-0 text-xs h-4 min-w-4 bg-blue-500">
+                        {(statusFilter ? 1 : 0) + (amountFilter && amountFilter < maxAmount ? 1 : 0)}
+                      </Badge>
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-96">
+                  <>
+                    <div className="flex h-80">
+                      {/* Left Panel - Filter Categories */}
+                      <div className="w-32 border-r border-gray-200 bg-gray-50">
+                        <div className="p-2 space-y-1">
+                          <Button
+                            variant={selectedPanel === 'status' ? 'default' : 'ghost'}
+                            size="sm"
+                            onClick={() => setSelectedPanel('status')}
+                            className="w-full justify-start text-sm"
+                          >
+                            Status
+                          </Button>
+                          <Button
+                            variant={selectedPanel === 'amount' ? 'default' : 'ghost'}
+                            size="sm"
+                            onClick={() => setSelectedPanel('amount')}
+                            className="w-full justify-start text-sm"
+                          >
+                            Amount
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Right Panel - Filter Options */}
+                      <div className="flex-1 p-4">
+                        {selectedPanel === 'status' && (
+                          <div className="space-y-3">
+                            <h4 className="text-sm font-medium text-gray-700 mb-3">Filter by Status</h4>
+                            <div className="space-y-2">
+                              <label className="flex items-center space-x-2 cursor-pointer">
+                                <input
+                                  type="radio"
+                                  name="tempStatus"
+                                  checked={!tempStatusFilter}
+                                  onChange={() => setTempStatusFilter(null)}
+                                  className="w-4 h-4"
+                                />
+                                <span className="text-sm">All Invoices</span>
+                              </label>
+                              <label className="flex items-center space-x-2 cursor-pointer">
+                                <input
+                                  type="radio"
+                                  name="tempStatus"
+                                  checked={tempStatusFilter === 'Paid'}
+                                  onChange={() => setTempStatusFilter('Paid')}
+                                  className="w-4 h-4"
+                                />
+                                <span className="text-sm">Paid Only</span>
+                              </label>
+                              <label className="flex items-center space-x-2 cursor-pointer">
+                                <input
+                                  type="radio"
+                                  name="tempStatus"
+                                  checked={tempStatusFilter === 'Unpaid'}
+                                  onChange={() => setTempStatusFilter('Unpaid')}
+                                  className="w-4 h-4"
+                                />
+                                <span className="text-sm">Unpaid Only</span>
+                              </label>
+                            </div>
+                          </div>
+                        )}
+
+                        {selectedPanel === 'amount' && (
+                          <div className="space-y-4">
+                            <h4 className="text-sm font-medium text-gray-700">Filter by Amount</h4>
+                            <div className="space-y-4">
+                              <div className="px-2">
+                                <Slider
+                                  value={[tempAmountFilter]}
+                                  onValueChange={(value) => setTempAmountFilter(value[0])}
+                                  max={maxAmount}
+                                  min={0}
+                                  step={100}
+                                  className="w-full"
+                                />
+                              </div>
+                              <div className="flex justify-between text-xs text-gray-500">
+                                <span>₹0</span>
+                                <span className="font-medium text-gray-700">
+                                  ≤ ₹{tempAmountFilter.toLocaleString()}
+                                </span>
+                                <span>₹{maxAmount.toLocaleString()}</span>
+                              </div>
+                              <div className="text-xs text-gray-600">
+                                Show invoices with amount ≤ ₹{tempAmountFilter.toLocaleString()}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Bottom Actions */}
+                    <div className="flex items-center justify-between p-3 border-t border-gray-200 bg-gray-50">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={clearAllFilters}
+                        className="text-xs"
+                      >
+                        Clear All
+                      </Button>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => setIsFilterOpen(false)}
+                          className="text-xs"
+                        >
+                          Cancel
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          onClick={applyFilters}
+                          className="text-xs"
+                        >
+                          Apply
+                        </Button>
+                      </div>
+                    </div>
+                  </>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+          
+          
+          
+          <div className="grid grid-cols-1 gap-6">
+          {filteredInvoices.map((invoice, index) => (
             <div key={index} className="shadow-sm border rounded-2xl bg-white">
               <div
                 className="flex justify-between items-center cursor-pointer p-6"
@@ -273,6 +514,7 @@ export default function BillingPage() {
               )}
             </div>
           ))}
+          </div>
         </div>
       </SidebarInset>
     </SidebarProvider>

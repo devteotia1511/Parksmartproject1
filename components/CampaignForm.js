@@ -59,67 +59,73 @@ export default function CampaignForm({ onAdd, initialData, triggerLabel = "Creat
         </DialogTitle>
         
         <div className="space-y-2">
-          <label className="text-sm font-medium mb-5">Campaign Name</label>
+          <label className="text-sm font-medium mx-2">Campaign Name</label>
           <Input
             name="name"
             value={form.name}
             onChange={handleChange}
-            placeholder="e.g., Diwali Blast"
+            className='mt-3'
+            placeholder="Enter the Campaign name"
           />
         </div>
 
-        <div className="space-y-2 mb-5">
+        <div className="space-y-2 mx-2">
           <label className="text-sm font-medium">Budget</label>
           <Input
             name="budget"
             type="number"
             value={form.budget}
             onChange={handleChange}
-            placeholder="e.g., 5000"
+            className='mt-3'
+            placeholder="Enter the Budget"
           />
         </div>
 
-        <div className="space-y-2 mb-5">
+        <div className="space-y-2 mx-2">
           <label className="text-sm font-medium">Start Date</label>
           <Input
             name="startDate"
             type="date"
+            className='mt-3'
             value={form.startDate}
             onChange={handleChange}
           />
         </div>
 
-        <div className="space-y-2 mb-5">
+        <div className="space-y-2 mx-2">
           <label className="text-sm font-medium">End Date</label>
           <Input
             name="endDate"
             type="date"
+            className='mt-3'
             value={form.endDate}
             onChange={handleChange}
           />
         </div>
 
-        <div className="space-y-2 mb-5">
+        <div className="space-y-2 mx-2">
           <label className="text-sm font-medium">Description</label>
           <Input
             name="description"
             value={form.description}
             onChange={handleChange}
-            placeholder="Short description of campaign"
+            className='mt-3'
+            placeholder="Short description of Campaign"
           />
         </div>
 
-        <div className="space-y-2 mb-5">
+        <div className="space-y-2 mx-2">
           <label className="text-sm font-medium">Target Audience</label>
           <Input
             name="targetAudience"
             value={form.targetAudience}
             onChange={handleChange}
+            className='mt-3'
             placeholder="e.g., Youth, Families"
           />
         </div>
 
-        <div className="space-y-2 mb-5">
+        <div className="space-y-2 mx-2">
           <label className="text-sm font-medium">Status</label>
           <select
             name="status"

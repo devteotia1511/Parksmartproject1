@@ -121,6 +121,19 @@
   }
 }
 
+@keyframes slide-right {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+}
+
+.animate-slide-right {
+  animation: slide-right 1.5s ease-in-out infinite;
+}
+
 :root {
   --sidebar-width: 10rem;         /* desktop */
   --sidebar-width-mobile: 14rem;  /* mobile */

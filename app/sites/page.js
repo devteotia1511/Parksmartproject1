@@ -9,6 +9,7 @@ import { Copy, RefreshCw, MapPin, CreditCard, Phone } from "lucide-react";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"; // Add SidebarInset import
 import {AppSidebar} from "@/components/app-sidebar"; // Import AppSidebar
 import {MainHeader} from "@/components/main-header"; // Import MainHeader
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 // import Navbar from "./components/Navbar";
 
 const brands = [
@@ -70,10 +71,11 @@ export default function App() {
 
   // The main component renders a gallery of brands and a modal dialog for the OTP.
   return (
-    <SidebarProvider
+    <ProtectedRoute>
+      <SidebarProvider
       style={
         {
-          "--sidebar-width": "calc(var(--spacing) * 65)",
+          "--sidebar-width": "calc(var(--spacing) * 60)",
           "--header-height": "calc(var(--spacing) * 10)"
         }
       }
@@ -87,7 +89,8 @@ export default function App() {
             avatar: "/avatars/profile.jpg"
           }}
           breadcrumbs={[
-            { label: "Sites", href: "/sites" }
+            { label: "Sites", href: "/sites" },
+            {label: "Overview", href: "/overview"}
           ]}
         />
         <div className="flex flex-1 flex-col">
@@ -167,8 +170,9 @@ export default function App() {
             </Dialog>
             
             </div>
-        </div>  
+        </div>  
       </SidebarInset>
     </SidebarProvider>
+    </ProtectedRoute>
   );
 }

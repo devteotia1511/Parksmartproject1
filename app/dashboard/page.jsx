@@ -7,6 +7,7 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
+import { ProtectedRoute } from "@/components/ProtectedRoute"
 
 export default function Page() {
   // Hardcoded data for the DataTable component
@@ -29,38 +30,40 @@ export default function Page() {
   ];
 
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 65)",
-          "--header-height": "calc(var(--spacing) * 10)"
+    <ProtectedRoute>
+      <SidebarProvider
+        style={
+          {
+            "--sidebar-width": "calc(var(--spacing) * 65)",
+            "--header-height": "calc(var(--spacing) * 10)"
+          }
         }
-      }
-      >
-      <AppSidebar variant="inset" />
-      <SidebarInset>
-        <MainHeader 
-          user={{ 
-            name: "Zudio", 
-            email: "zudio@business.in", 
-            avatar: "/avatars/profile.jpg"
-          }}
-          breadcrumbs={[
-            { label: "Dashboard", href: "/dashboard" }
-          ]}
-        />
-        <div className="flex flex-1 flex-col">
-          <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              {/* <SectionCards /> */}
-              <div className="px-4 lg:px-6">
-                {/* <ChartAreaInteractive /> */}
+        >
+        <AppSidebar variant="inset" />
+        <SidebarInset>
+          <MainHeader 
+            user={{ 
+              name: "Zudio", 
+              email: "zudio@business.in", 
+              avatar: "/avatars/profile.jpg"
+            }}
+            breadcrumbs={[
+              { label: "Dashboard", href: "/dashboard" }
+            ]}
+          />
+          <div className="flex flex-1 flex-col">
+            <div className="@container/main flex flex-1 flex-col gap-2">
+              <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+                {/* <SectionCards /> */}
+                <div className="px-4 lg:px-6">
+                  {/* <ChartAreaInteractive /> */}
+                </div>
+                <DataTable data={parkingData}/>
               </div>
-              <DataTable data={parkingData}/>
             </div>
           </div>
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+        </SidebarInset>
+      </SidebarProvider>
+    </ProtectedRoute>
   );
 }

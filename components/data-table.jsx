@@ -26,9 +26,6 @@ import {
   IconChevronsRight,
   IconGripVertical,
   IconLayoutColumns,
-  IconLoader,
-  IconPlus,
-  IconTrendingUp,
 } from "@tabler/icons-react"
 import {
   flexRender,
@@ -76,7 +73,6 @@ export const schema = z.object({
   lastUpdated: z.string(),
 })
 
-// Create a separate component for the drag handle
 function DragHandle({
   id
 }) {
@@ -247,8 +243,13 @@ export function DataTable({
 
   return (
     <div className="w-full flex-col gap-6">
-      <div className="flex items-center gap-2 px-4 lg:px-6">
-        <div className="ml-auto flex items-center gap-1 mb-3 mt-0">
+      <div className="flex items-center justify-between gap-2 px-4 lg:px-6">
+        <div className="flex items-center mb-3 mt-0">
+          <h2 className="text-xl font-bold text-gray-600 mx-3">
+            ZUDIO BUSINESS PARKING
+          </h2>
+        </div>
+        <div className="flex items-center gap-1 mb-3 mt-0">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">

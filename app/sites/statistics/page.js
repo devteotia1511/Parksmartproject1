@@ -7,10 +7,12 @@ import React from 'react'
 import {ChartLineDots} from '@/components/chart-line-dots'
 import {ChartPieInteractive} from '@/components/chart-pie-interactive'
 import { SectionCards } from '@/components/section-cards';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
 
 const page = () => {
   return (
-    <SidebarProvider
+    <ProtectedRoute>
+      <SidebarProvider
       style={
         {
           "--sidebar-width": "calc(var(--spacing) * 65)",
@@ -135,6 +137,7 @@ const page = () => {
         </div>
       </SidebarInset>
     </SidebarProvider>
+    </ProtectedRoute>
   );
 }
 

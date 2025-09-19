@@ -8,19 +8,19 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Image from "next/image"
+import { useAuth } from "@/contexts/AuthContext"
 
 export function LoginForm({ className, ...props }) {
   const router = useRouter()
+  const { login } = useAuth()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
 
   const handleLogin = (e) => {
     e.preventDefault()
-    if (email === "business@name.com" && password === "12345") {
-      localStorage.setItem("auth", "true")
-      router.push("/dashboard")
-    } else {
+    const success = login(email, password)
+    if (!success) {
       setError("Invalid email or password")
     }
   }

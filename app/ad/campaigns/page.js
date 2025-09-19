@@ -2,10 +2,16 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { MainHeader } from "@/components/main-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { ActionBar } from "@/components/action-bar";
 import { useState } from "react";
 import CampaignForm from "@/components/CampaignForm";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 export default function CampaignsPage() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState(null);
+  const [spendFilter, setSpendFilter] = useState(10000); // Max spend filter
+  const [dateTimeFilter, setDateTimeFilter] = useState(null); // Date time filter
   const [campaigns, setCampaigns] = useState([
     {
       id: 1,
@@ -186,10 +192,33 @@ export default function CampaignsPage() {
     }));
   };
 
+  // Calculate max spend for slider
+  const maxSpend = Math.max(...campaigns.map(c => c.spend), 10000);
+
+  // Filter and search functionality
+  const filteredCampaigns = campaigns.filter(campaign => {
+    const matchesSearch = campaign.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = !statusFilter || campaign.status === statusFilter;
+    const matchesSpend = campaign.spend <= spendFilter;
+    
+    // Date time filtering
+    let matchesDate = true;
+    if (dateTimeFilter) {
+      const campaignStart = new Date(campaign.startDate);
+      const campaignEnd = new Date(campaign.endDate);
+      const filterDate = new Date(dateTimeFilter);
+      
+      // Check if the selected date falls within campaign duration
+      matchesDate = campaignStart <= filterDate && campaignEnd >= filterDate;
+    }
+    
+    return matchesSearch && matchesStatus && matchesSpend && matchesDate;
+  });
+
   return (
     <SidebarProvider
       style={{
-        "--sidebar-width": "calc(var(--spacing) * 65)",
+        "--sidebar-width": "calc(var(--spacing) * 60)",
         "--header-height": "calc(var(--spacing) * 10)"
       }}
     >
@@ -202,17 +231,30 @@ export default function CampaignsPage() {
             avatar: "/avatars/profile.jpg"
           }}
           breadcrumbs={[
+            {label:"Ad"},
             { label: "Campaigns", href: "/campaigns" }
           ]}
         />
         <div className="space-y-6 m-3">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-800 m-3">Campaigns</h1>
-            <CampaignForm 
-              onAdd={handleCreateCampaign}
-              triggerLabel="Create Campaign"
-            />
-          </div>
+          <ActionBar
+            searchPlaceholder="Search campaigns..."
+            searchValue={searchTerm}
+            onSearchChange={setSearchTerm}
+            showDateTimeFilter={true}
+            dateTimeFilter={dateTimeFilter}
+            onDateTimeFilterChange={setDateTimeFilter}
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+            spendFilter={spendFilter}
+            onSpendFilterChange={setSpendFilter}
+            maxSpend={maxSpend}
+            ActionComponent={() => (
+              <CampaignForm 
+                onAdd={handleCreateCampaign}
+                triggerLabel="Create Campaign"
+              />
+            )}
+          />
 
           {/* Campaigns Table */}
           <div className="bg-white rounded-xl shadow-sm border">
@@ -232,7 +274,7 @@ export default function CampaignsPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {campaigns.map((campaign) => (
+                    {filteredCampaigns.map((campaign) => (
                       <tr key={campaign.id} className="border-b border-gray-100 hover:bg-gray-50">
                         <td className="py-4 px-4">
                           <div>
