@@ -104,7 +104,7 @@ export default function NotFound() {
             <h1 className="text-6xl font-bold text-gray-400">404</h1>
             <h2 className="text-2xl font-semibold text-gray-800">Page Not Found</h2>
             <p className="text-gray-600 max-w-md mx-auto">
-              Sorry, we couldn't find the page you're looking for. The URL you entered might be incorrect.
+              Sorry, we couldn&apos;t find the page you&apos;re looking for. The URL you entered might be incorrect.
             </p>
             {currentUrl && (
               <p className="text-sm text-red-500 font-mono bg-red-50 p-2 rounded border border-red-200 inline-block">
@@ -167,7 +167,7 @@ export default function NotFound() {
         {/* Additional Help */}
         <div className="text-center space-y-2">
           <p className="text-sm text-gray-500">
-            If you're still having trouble, try starting from the dashboard.
+            If you&apos;re still having trouble, try starting from the dashboard.
           </p>
           <div className="flex items-center justify-center gap-2 text-xs text-gray-400">
             <Search className="h-3 w-3" />
